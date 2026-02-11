@@ -30,7 +30,7 @@ minimal-physics-engine/
 │       ├── analysis/
 │       │   ├── energy.py
 │       │   ├── stability.py
-│       │   ├── determinism.py
+│       │   ├── error.py
 │       │   └── metrics.py
 │       │
 │       ├── benchmarks/
@@ -44,11 +44,12 @@ minimal-physics-engine/
 ├── experiments/
 │   ├── oscillator_stability.py
 │   ├── energy_drift.py
+│   ├── error_growth.py
 │   └── dt_sweep.py
 │
 └── tests/
     ├── test_integrators.py
     ├── test_forces.py
-    ├── test_determinism.py
+    ├── test_error.py
     └── test_energy_conservation.py
 
