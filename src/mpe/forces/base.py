@@ -1,4 +1,4 @@
-# scr/mpe/force/base.py
+# scr/mpe/forces/base.py
 
 
 from abc import ABC,abstractmethod
