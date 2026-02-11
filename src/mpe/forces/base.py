@@ -2,7 +2,7 @@
 
 
 from abc import ABC,abstractmethod
-from mpe.core.state import State1D
+from src.mpe.core.state import State1D
 
 class ForceModel(ABC):
     @abstractmethod

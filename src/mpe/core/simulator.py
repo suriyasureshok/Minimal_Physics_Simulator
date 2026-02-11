@@ -1,10 +1,10 @@
 # src/mpe/core/simulator.py
 
 import numpy as np
-from mpe.core.state import State1D
-from mpe.integrators.base import Integrator
-from mpe.forces.base import ForceModel
-from mpe.core.timekeeper import TimeKeeper
+from src.mpe.core.state import State1D
+from src.mpe.integrators.base import Integrator
+from src.mpe.forces.base import ForceModel
+from src.mpe.core.timekeeper import TimeKeeper
 
 class Simulator:
     def __init__(

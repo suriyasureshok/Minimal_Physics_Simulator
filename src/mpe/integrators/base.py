@@ -1,8 +1,8 @@
 # src/mpe/integrators/base.py
 
 from abc import ABC, abstractmethod
-from mpe.core.state import State1D
-from mpe.forces.base import ForceModel
+from src.mpe.core.state import State1D
+from src.mpe.forces.base import ForceModel
 
 class Integrator(ABC):
     @abstractmethod

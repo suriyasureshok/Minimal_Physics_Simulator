@@ -1,7 +1,7 @@
 # src/mpe/forces/composite.py
 
-from mpe.forces.base import ForceModel
-from mpe.core.state import State1D
+from src.mpe.forces.base import ForceModel
+from src.mpe.core.state import State1D
 
 class CompositeForce(ForceModel):
     def __init__(self,forces):

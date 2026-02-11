@@ -1,7 +1,7 @@
 #src/mpe/forces/gravity.py
 
-from mpe.forces.base import ForceModel
-from mpe.core.state import State1D
+from src.mpe.forces.base import ForceModel
+from src.mpe.core.state import State1D
 
 class GravityForce(ForceModel):
     def __init__(self,m:float,g:float):
