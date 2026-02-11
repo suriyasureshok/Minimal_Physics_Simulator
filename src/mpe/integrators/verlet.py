@@ -1,6 +1,6 @@
 # src/mpe/integrators/verlet.py
 
-from src.mpe.integrtors.base import Integrator
+from src.mpe.integrators.base import Integrator
 from src.mpe.core.state import State1D
 from src.mpe.forces.base import ForceModel
 
