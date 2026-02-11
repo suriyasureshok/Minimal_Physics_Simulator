@@ -13,9 +13,11 @@ class ExplicitEuler(Integrator):
             t: float,
             dt: float
             ) -> State1D:
+        
         force = force_model.compute(state, t)
         a = force/mass
 
         new_x = state.x + dt * state.v
         new_v = state.v + dt * a
+        
         return State1D(new_x, new_v)
