@@ -1,0 +1,22 @@
+import numpy as np
+
+
+class AsyncBatchEnv:
+    def __init__(self, env):
+        self.env = env
+        self.num_envs = env.num_envs
+
+    def step(self, dt):
+        # Each env gets slightly different dt
+        dt_variation = dt * (1 + 0.01 * np.random.randn(self.num_envs))
+
+        for i in range(self.num_envs):
+            a = -self.env.k_over_m * self.env.x[i]
+            self.env.v[i] += dt_variation[i] * a
+            self.env.x[i] += dt_variation[i] * self.env.v[i]
+
+        reward = -self.env.x**2
+        done = np.zeros(self.num_envs, dtype=np.bool_)
+
+        return self.env.get_state(), reward, done
+
