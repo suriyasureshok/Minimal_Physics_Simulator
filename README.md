@@ -1,9 +1,10 @@
 # Minimal Physics Engine
 
-A transparent, modular physics simulation engine built from scratch to study numerical integration methods, stability analysis, and performance optimization in computational physics.
+A transparent, modular physics simulation engine built from scratch to study numerical integration methods, stability analysis, performance optimization, and reinforcement learning infrastructure engineering.
 
 [![Python](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Status](https://img.shields.io/badge/status-Phase%204%20Complete-brightgreen.svg)](.)
 
 ---
 
@@ -14,8 +15,10 @@ This is **not** a physics toy or game engine. It is a rigorous study in:
 - Performance tradeoffs in integrator selection
 - Long-horizon behavior of conservative systems
 - The difference between local accuracy and global reliability
+- **Memory-bandwidth optimization and throughput engineering**
+- **RL rollout infrastructure and scaling analysis**
 
-**Core Philosophy:** Complete transparency. Every integrator, force model, and numerical artifact is observable and explainable. No black-box ODE solvers, no hidden abstractions.
+**Core Philosophy:** Complete transparency. Every integrator, force model, memory access pattern, and numerical artifact is observable and explainable. No black-box ODE solvers, no hidden abstractions.
 
 ---
 
@@ -45,12 +48,26 @@ This is **not** a physics toy or game engine. It is a rigorous study in:
   - Gravity Force
   - Damped Spring Force
 
-### 🔄 Phase 3 (Planned)
+### ✅ Phase 3 (Complete)
 
-- NumPy vectorization
-- Struct-of-Arrays memory layout
-- Multi-particle systems
-- Cache optimization
+- **Performance Engineering**
+  - Three optimization backends: Python loop, NumPy vectorized, PyTorch CPU
+  - Structure-of-Arrays (SoA) memory layout
+  - Batch simulation (1 to 100,000 particles)
+  - Memory-bandwidth optimization (+73% throughput gain)
+  - Achieved **1.38 billion particle-steps/sec**
+  - Sustained **22.1 GB/s memory bandwidth**
+
+### ✅ Phase 4 (Complete)
+
+- **RL Infrastructure Engineering**
+  - Batched environment system (4,096+ parallel environments)
+  - On-policy rollout storage (PPO-style)
+  - Off-policy replay buffer (DQN/SAC-style)
+  - Deterministic execution validation (100% bitwise identical)
+  - Achieved **44.3 million transitions/sec**
+  - Memory capacity analysis (68 MB per rollout batch)
+  - Scaling constraint characterization (RAM capacity bottleneck)
 
 ---
 
@@ -60,7 +77,7 @@ Our stability analysis reveals critical insights about integrator selection:
 
 ```
 ==============================================================================
-STABILITY AND PERFORMANCE TABLE
+STABILITY AND PERFORMANCE TABLE (Phase 2)
 ==============================================================================
               Max Stable dt  ns/step  FLOPs  Sim-time/sec
 Euler              0.000500   602.80      6        829.46
@@ -70,11 +87,47 @@ RK4                     NaN  3417.92     38          0.00
 ==============================================================================
 ```
 
-**Key Findings:**
+**Phase 2 Findings:**
 - ✅ **Velocity Verlet** is the gold standard: 203,000× real-time under stability constraints
 - ⚠️ **RK4** fails for long-term Hamiltonian systems despite 4th-order accuracy
 - ❌ **Explicit Euler** is unsuitable for oscillatory dynamics
 - 🎯 **Symplectic structure** matters more than truncation order
+
+```
+==============================================================================
+BATCH THROUGHPUT OPTIMIZATION (Phase 3)
+==============================================================================
+Particles   Backend      Particle-Steps/sec   Bandwidth (GB/s)
+100,000     PythonLoop             1.98M             0.032
+            NumPy                  1.38B            22.1
+            TorchCPU               941M             15.1
+==============================================================================
+Optimization: +73% gain via in-place array operations
+```
+
+**Phase 3 Findings:**
+- 🚀 **NumPy vectorization**: 690× faster than Python loops at scale
+- 💾 **Memory bandwidth bottleneck**: 22.1 GB/s (near DDR4 theoretical limit)
+- 🎯 **Three performance regimes**: overhead-bound, interpreter-bound, bandwidth-bound
+- ⚡ **In-place optimization**: 73% throughput improvement
+
+```
+==============================================================================
+RL ROLLOUT THROUGHPUT (Phase 4)
+==============================================================================
+Configuration:  num_envs=4096, horizon=1024, state_dim=2
+Total Transitions:           4,194,304
+Throughput:                  44.3M transitions/sec
+Memory Usage:                68 MB
+Deterministic:               ✅ 100% bitwise identical
+==============================================================================
+```
+
+**Phase 4 Findings:**
+- 🤖 **RL Infrastructure**: Production-grade batched rollout systems
+- 💾 **Memory Capacity Constraint**: RAM capacity becomes first bottleneck (not compute)
+- 🏗️ **SoA Layout Critical**: Structure-of-Arrays enables full vectorization
+- 🔒 **Deterministic Execution**: 100% reproducible across 4M+ transitions
 
 ---
 
@@ -134,18 +187,35 @@ Minimal_Physics_Simulator/
 │       │   ├── gravity.py
 │       │   ├── damped_spring.py
 │       │   └── composite.py
-│       └── analysis/                 # Analysis tools
-│           ├── energy.py             # Energy tracking
-│           ├── error.py              # Error metrics
-│           ├── stability.py          # Stability detection
-│           └── metrics.py
+│       ├── analysis/                 # Analysis tools
+│       │   ├── energy.py             # Energy tracking
+│       │   ├── error.py              # Error metrics
+│       │   ├── stability.py          # Stability detection
+│       │   └── metrics.py
+│       ├── batch/                    # Batch simulation backends (Phase 3)
+│       │   ├── __init__.py
+│       │   ├── base.py               # Backend interface
+│       │   ├── python_loop.py        # Baseline Python loop
+│       │   ├── numpy_vectorized.py   # NumPy vectorized
+│       │   ├── torch_cpu.py          # PyTorch CPU tensors
+│       │   └── benchmark.py          # Throughput benchmarking
+│       └── rl/                       # RL infrastructure (Phase 4)
+│           ├── __init__.py
+│           ├── environment_batch.py  # Batched environments
+│           ├── rollout_storage.py    # On-policy rollout buffer
+│           ├── replay_buffer.py      # Off-policy replay buffer
+│           └── determinism.py        # Determinism validation
 ├── experiments/                      # Simulation experiments
-│   ├── energy_drift.py
-│   ├── error_growth.py
-│   ├── oscillator_stability.py
-│   └── stability_table.py            # Main results
+│   ├── energy_drift.py               # Phase 2: Energy conservation
+│   ├── error_growth.py               # Phase 2: Error analysis
+│   ├── oscillator_stability.py       # Phase 2: Stability boundaries
+│   ├── stability_table.py            # Phase 2: Main results
+│   ├── throughput_scaling.py         # Phase 3: Batch performance
+│   └── rl_roll_test.py               # Phase 4: RL rollout test
 ├── docs/
-│   └── PROGRESS_REPORT.MD            # Comprehensive technical report
+│   ├── PROGRESS_REPORT.MD            # Comprehensive technical report (v4.0)
+│   ├── phases.md                     # Project roadmap
+│   └── file_structure.md             # Architecture documentation
 ├── plots/                            # Generated visualizations
 ├── requirements.txt
 ├── pyproject.toml
@@ -211,29 +281,47 @@ positions, velocities = sim.run(initial_state, dt, steps)
 
 ## 🧪 Experiments
 
-### 1. Energy Drift Analysis
+### Phase 2: Integrator Analysis
+
+**1. Energy Drift Analysis**
 ```bash
 python -m src.experiments.energy_drift
 ```
 Measures energy conservation over time for each integrator.
 
-### 2. Error Growth
+**2. Error Growth**
 ```bash
 python -m src.experiments.error_growth
 ```
 Compares numerical solutions to analytical solutions.
 
-### 3. Oscillator Stability
+**3. Oscillator Stability**
 ```bash
 python -m src.experiments.oscillator_stability
 ```
 Determines stability boundaries as a function of timestep.
 
-### 4. Stability Table (Main Results)
+**4. Stability Table**
 ```bash
 python -m src.experiments.stability_table
 ```
 Generates comprehensive performance comparison table.
+
+### Phase 3: Throughput Engineering
+
+**5. Batch Throughput Scaling**
+```bash
+python -m src.experiments.throughput_scaling
+```
+Benchmarks batch simulation performance across backends and particle counts.
+
+### Phase 4: RL Infrastructure
+
+**6. RL Rollout Test**
+```bash
+python -m src.experiments.rl_roll_test
+```
+Validates batched rollout throughput, memory usage, and determinism.
 
 ---
 
@@ -335,10 +423,12 @@ $$
 |-------|--------|-------|
 | **Phase 1** | ✅ Complete | Core engine, deterministic simulation |
 | **Phase 2** | ✅ Complete | Integrator comparison, stability analysis |
-| **Phase 3** | 🔄 Planned | NumPy vectorization, multi-particle systems |
-| **Phase 4** | 📋 Future | Adaptive timestepping, implicit methods |
-| **Phase 5** | 📋 Future | N-body dynamics, constrained systems |
-| **Phase 6** | 📋 Future | GPU acceleration, validation studies |
+| **Phase 3** | ✅ Complete | Batch simulation, throughput engineering, memory optimization |
+| **Phase 4** | ✅ Complete | RL infrastructure, batched rollouts, scaling analysis |
+| **Phase 5** | 🔄 Planned | Adaptive timestepping, implicit methods, higher-order symplectic |
+| **Phase 6** | 📋 Future | N-body dynamics, constrained systems, chaotic systems |
+| **Phase 7** | 📋 Future | GPU acceleration (CUDA), batched parameter sweeps |
+| **Phase 8** | 📋 Future | Python package, C++ core, production deployment |
 
 ---
 
@@ -366,6 +456,19 @@ This project teaches:
    - Design for experimentation
    - Coupling vs. cohesion
 
+5. **Performance Engineering (Phase 3)**
+   - Memory-bandwidth optimization
+   - SoA vs AoS layout tradeoffs
+   - Cache locality and vectorization
+   - Three performance regimes (overhead, interpreter, bandwidth)
+
+6. **RL Systems Engineering (Phase 4)**
+   - Memory capacity as primary constraint
+   - Batched environment design
+   - Determinism engineering
+   - Rollout storage architecture
+   - Streaming vs full-buffer strategies
+
 ---
 
 ## 📚 References
@@ -379,6 +482,20 @@ This project teaches:
 - Orbital Mechanics: N-body simulations
 - Game Physics: Bullet, MuJoCo
 
-**Status**: Phase 2 Complete | **Last Updated**: February 11, 2026
+---
 
-*Built to understand numerical integration from first principles.*
+## 🏆 Project Achievements Summary
+
+- **1.38 billion particle-steps/sec** (Phase 3 throughput)
+- **22.1 GB/s sustained memory bandwidth** (Phase 3 optimization)
+- **44.3 million RL transitions/sec** (Phase 4 infrastructure)
+- **100% deterministic execution** (Phases 1-4 validation)
+- **245× Verlet advantage** over Explicit Euler (Phase 2 analysis)
+- **73% performance gain** from in-place optimization (Phase 3)
+- **Zero coupling architecture** enabling rapid experimentation
+
+---
+
+**Status**: Phase 4 Complete | **Last Updated**: February 16, 2026
+
+*Built to understand numerical integration, performance engineering, and RL infrastructure from first principles.*
