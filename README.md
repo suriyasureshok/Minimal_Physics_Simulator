@@ -199,20 +199,19 @@ Minimal_Physics_Simulator/
 │       │   ├── numpy_vectorized.py   # NumPy vectorized
 │       │   ├── torch_cpu.py          # PyTorch CPU tensors
 │       │   └── benchmark.py          # Throughput benchmarking
-|       ├──rl/                       # RL infrastructure (Phase 4)
-│       |   ├── __init__.py
-│       |   ├── environment_batch.py  # Batched environments
-│       |   ├── rollout_storage.py    # On-policy rollout buffer
-│       |   ├── replay_buffer.py      # Off-policy replay buffer
-│       |   └── determinism.py        # Determinism validation
-|       └── experiments/                      # Simulation experiments
+│       ├── rl/                       # RL infrastructure (Phase 4)
+│       │   ├── __init__.py
+│       │   ├── environment_batch.py  # Batched environments
+│       │   ├── rollout_storage.py    # On-policy rollout buffer
+│       │   ├── replay_buffer.py      # Off-policy replay buffer
+│       │   └── determinism.py        # Determinism validation
+│       └── experiments/                      # Simulation experiments
 │           ├── energy_drift.py               # Phase 2: Energy conservation
 │           ├── error_growth.py               # Phase 2: Error analysis
 │           ├── oscillator_stability.py       # Phase 2: Stability boundaries
 │           ├── stability_table.py            # Phase 2: Main results
 │           ├── throughput_scaling.py         # Phase 3: Batch performance
-│           └── rl_roll_test.py               # Phase 4: RL rollout test
-├── docs/
+│           └── rl_roll_test.py               # Phase 4: RL rollout test├── docs/
 │   ├── PROGRESS_REPORT.MD            # Comprehensive technical report (v4.0)
 │   ├── phases.md                     # Project roadmap
 │   └── file_structure.md             # Architecture documentation
