@@ -15,7 +15,7 @@ def check_determinism(env_class, num_envs, k_over_m, dt, horizon):
     states1 = []
     states2 = []
 
-    for _ in range(horizon)
+    for _ in range(horizon):
         s1, _, _ = env1.step(dt)
         s2, _, _ = env2.step(dt)
 
