@@ -4,7 +4,7 @@ A transparent, modular physics simulation engine built from scratch to study num
 
 [![Python](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Status](https://img.shields.io/badge/status-Phase%204%20Complete-brightgreen.svg)](.)
+[![Status](https://img.shields.io/badge/status-Phase%204%20Complete-brightgreen.svg)](#phase-4-complete)
 
 ---
 
@@ -199,19 +199,19 @@ Minimal_Physics_Simulator/
 │       │   ├── numpy_vectorized.py   # NumPy vectorized
 │       │   ├── torch_cpu.py          # PyTorch CPU tensors
 │       │   └── benchmark.py          # Throughput benchmarking
-│       └── rl/                       # RL infrastructure (Phase 4)
-│           ├── __init__.py
-│           ├── environment_batch.py  # Batched environments
-│           ├── rollout_storage.py    # On-policy rollout buffer
-│           ├── replay_buffer.py      # Off-policy replay buffer
-│           └── determinism.py        # Determinism validation
-├── experiments/                      # Simulation experiments
-│   ├── energy_drift.py               # Phase 2: Energy conservation
-│   ├── error_growth.py               # Phase 2: Error analysis
-│   ├── oscillator_stability.py       # Phase 2: Stability boundaries
-│   ├── stability_table.py            # Phase 2: Main results
-│   ├── throughput_scaling.py         # Phase 3: Batch performance
-│   └── rl_roll_test.py               # Phase 4: RL rollout test
+|       ├──rl/                       # RL infrastructure (Phase 4)
+│       |   ├── __init__.py
+│       |   ├── environment_batch.py  # Batched environments
+│       |   ├── rollout_storage.py    # On-policy rollout buffer
+│       |   ├── replay_buffer.py      # Off-policy replay buffer
+│       |   └── determinism.py        # Determinism validation
+|       └── experiments/                      # Simulation experiments
+│           ├── energy_drift.py               # Phase 2: Energy conservation
+│           ├── error_growth.py               # Phase 2: Error analysis
+│           ├── oscillator_stability.py       # Phase 2: Stability boundaries
+│           ├── stability_table.py            # Phase 2: Main results
+│           ├── throughput_scaling.py         # Phase 3: Batch performance
+│           └── rl_roll_test.py               # Phase 4: RL rollout test
 ├── docs/
 │   ├── PROGRESS_REPORT.MD            # Comprehensive technical report (v4.0)
 │   ├── phases.md                     # Project roadmap
