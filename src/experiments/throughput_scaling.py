@@ -3,12 +3,9 @@ import torch
 import pandas as pd 
 
 from src.mpe.batch.python_loop import PythonLoopIntegrator
-from src.mpe.batch.numpy_vectorized import NumpPyVectorizedIntegrator
-from src.mpe.batch.torch_cpu import TourchCPUIntegrator
+from src.mpe.batch.numpy_vectorized import NumpyVectorizedIntegrator
+from src.mpe.batch.torch_cpu import TorchCPUIntegrator
 from src.mpe.batch.benchmark import benchmark_backend
-
-
-
 
 
 m = 1.0
@@ -32,8 +29,8 @@ for N in particle_count:
 
     backends = {
         'PythonLoop' : PythonLoopIntegrator(k_over_m),
-        'NumPy' : NumpPyVectorizedIntegrator(k_over_m),
-        'TorchCPU' : TourchCPUIntegrator(k_over_m)
+        'NumPy' : NumpyVectorizedIntegrator(k_over_m),
+        'TorchCPU' : TorchCPUIntegrator(k_over_m)
     }
 
     for name , integrator in backends.items():
@@ -50,7 +47,7 @@ for N in particle_count:
 
         particle_steps_per_sec = steps_per_sec * N 
 
-        bytes_per_particle = 32 
+        bytes_per_particle = 16
         bandwidth_estimate = (
             particle_steps_per_sec * bytes_per_particle
         ) / 1e9
@@ -66,7 +63,7 @@ for N in particle_count:
 df = pd.DataFrame(
     result,
     columns = [
-        'Paticles',
+        'Particles',
         'Backend',
         'Steps/sec',
         'Particle-Steps/sec',

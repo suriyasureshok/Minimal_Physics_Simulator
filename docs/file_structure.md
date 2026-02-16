@@ -13,6 +13,13 @@ minimal-physics-engine/
 │       │   ├── simulator.py
 │       │   └── timekeeper.py
 │       │
+│       ├── batch/
+│       │   ├── __init__.py
+│       │   ├── base.py
+│       │   ├── python_loop.py
+│       │   ├── numpy_vectorized.py
+│       │   ├── torch_cpu.py
+│       │   └── benchmark.py
 │       ├── forces/
 │       │   ├── base.py
 │       │   ├── gravity.py
