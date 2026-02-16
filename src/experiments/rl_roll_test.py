@@ -24,14 +24,14 @@ storage = RolloutStorage(horizon,num_envs,state_dim,action_dim)
 
 print("Estimated rollout memory (MB) :",storage.memory_megabytes())
 
-start = time.pref_counter()
+start = time.perf_counter()
 
 for t in range(horizon):
     state , reward ,done = env.step(dt)
     action = np.zeros((num_envs,action_dim) , dtype = np.float32)
     storage.store(t,state,action,reward,done)
 
-end = time.pref_counter()
+end = time.perf_counter()
 print('Rollout time (sec):',end-start)
 print()
 

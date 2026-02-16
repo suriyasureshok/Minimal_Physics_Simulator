@@ -33,7 +33,7 @@ class BatchOscillatorEnv:
 
         return self.get_state(), reward, done
 
-    def get_state():
+    def get_state(self):
         """
         Return state as AoS view for compatibility with RL code.
         Shape: (num_envs, 2)
