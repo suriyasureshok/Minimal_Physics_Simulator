@@ -50,60 +50,86 @@ Molecular dynamics, reinforcement learning environments, orbital mechanics, game
 ## System Architecture
 
 ```mermaid
-graph TB
-    subgraph "Core Engine"
-        State[State1D<br/>Position & Velocity]
-        TK[TimeKeeper<br/>Simulation Clock]
-        Sim[Simulator<br/>Integration Loop]
-    end
-    
-    subgraph "Integrators"
-        EE[Explicit Euler]
-        SIE[Semi-Implicit Euler]
-        Verlet[Velocity Verlet]
-        RK4[Runge-Kutta 4]
-    end
-    
-    subgraph "Force Models"
-        Spring[Spring Force]
-        Gravity[Gravity]
-        Damped[Damped Spring]
-        Composite[Composite Forces]
-    end
-    
-    subgraph "Batch Processing"
-        PythonLoop[Python Loop]
-        NumPyVec[NumPy Vectorized]
-        TorchCPU[PyTorch CPU]
-    end
-    
-    subgraph "Analysis"
-        Energy[Energy Analysis]
-        Error[Error Metrics]
-        Stability[Stability Detection]
-    end
-    
-    subgraph "RL Components"
-        BatchEnv[Batch Environments]
-        Rollout[Rollout Storage]
-        Replay[Replay Buffer]
-    end
-    
-    Sim --> State
-    Sim --> TK
-    Sim --> Integrators
-    Sim --> Force Models
-    
-    BatchEnv --> Batch Processing
-    Batch Processing --> Analysis
-    Analysis --> Stability
-    
-    Integrators --> Analysis
-    
-    style State fill:#e1f5ff
-    style Sim fill:#ffe1e1
-    style Analysis fill:#e1ffe1
-    style BatchEnv fill:#fff4e1
+---
+config:
+  layout: elk
+---
+flowchart TB
+ subgraph CoreEngine["<b>Core Engine</b><br>&nbsp;"]
+    direction TB
+        State("State1D<br>Position &amp; Velocity")
+        TK("TimeKeeper<br>Simulation Clock")
+        Sim("Simulator<br>Integration Loop")
+  end
+ subgraph Integrators["<b>Integrators</b><br>&nbsp;"]
+    direction TB
+        EE("Explicit Euler")
+        SIE("Semi-Implicit Euler")
+        Verlet("Velocity Verlet")
+        RK4("Runge-Kutta 4")
+  end
+ subgraph ForceModels["<b>Force Models</b><br>&nbsp;"]
+    direction TB
+        Spring("Spring Force")
+        Gravity("Gravity")
+        Damped("Damped Spring")
+        Composite("Composite Forces")
+  end
+ subgraph BatchProcessing["<b>Batch Processing</b><br>&nbsp;"]
+    direction TB
+        PythonLoop("Python Loop")
+        NumPyVec("NumPy Vectorized")
+        TorchCPU("PyTorch CPU")
+  end
+ subgraph Analysis["<b>Analysis</b><br>&nbsp;"]
+    direction TB
+        Energy("Energy Analysis")
+        ErrorMetrics("Error Metrics")
+        StabilityCheck("Stability Detection")
+  end
+ subgraph RLComponents["<b>RL Components</b><br>&nbsp;"]
+    direction TB
+        BatchEnv("Batch Environments")
+        Rollout("Rollout Storage")
+        Replay("Replay Buffer")
+  end
+    Sim ==> State & TK & Verlet & Spring
+    BatchEnv ==> NumPyVec
+    NumPyVec ==> Energy
+    Energy ==> StabilityCheck
+    Verlet -.-> Energy
+
+     State:::gBlue
+     TK:::gBlue
+     Sim:::gRed
+     EE:::gRed
+     SIE:::gRed
+     Verlet:::gRed
+     RK4:::gRed
+     Spring:::gBlue
+     Gravity:::gBlue
+     Damped:::gBlue
+     Composite:::gBlue
+     PythonLoop:::gYellow
+     NumPyVec:::gYellow
+     TorchCPU:::gYellow
+     Energy:::gGreen
+     ErrorMetrics:::gGreen
+     StabilityCheck:::gGreen
+     BatchEnv:::gYellow
+     Rollout:::gYellow
+     Replay:::gYellow
+    classDef default font-family:'Google Sans',Arial,sans-serif,color:#202124
+    classDef gBlue fill:#E8F0FE,stroke:#4285F4,stroke-width:2px,color:#174EA6
+    classDef gRed fill:#FCE8E6,stroke:#EA4335,stroke-width:2px,color:#B31412
+    classDef gGreen fill:#E6F4EA,stroke:#34A853,stroke-width:2px,color:#137333
+    classDef gYellow fill:#FEF7E0,stroke:#FBBC04,stroke-width:2px,color:#B06000
+    style CoreEngine fill:#ffffff,stroke:#e0e0e0,stroke-width:2px,stroke-dasharray: 5 5,color:#5f6368
+    style Integrators fill:#ffffff,stroke:#e0e0e0,stroke-width:2px,stroke-dasharray: 5 5,color:#5f6368
+    style ForceModels fill:#ffffff,stroke:#e0e0e0,stroke-width:2px,stroke-dasharray: 5 5,color:#5f6368
+    style BatchProcessing fill:#ffffff,stroke:#e0e0e0,stroke-width:2px,stroke-dasharray: 5 5,color:#5f6368
+    style Analysis fill:#ffffff,stroke:#e0e0e0,stroke-width:2px,stroke-dasharray: 5 5,color:#5f6368
+    style RLComponents fill:#ffffff,stroke:#e0e0e0,stroke-width:2px,stroke-dasharray: 5 5,color:#5f6368
 ```
 
 ---
@@ -112,48 +138,79 @@ graph TB
 
 ```mermaid
 flowchart LR
-    subgraph Init["Initialization"]
-        S0[Initial State<br/>x₀, v₀]
-        Params[Parameters<br/>dt, mass, k]
+    %% 1. GLOBAL STYLING
+    %% Clean sans-serif font, dark grey text
+    classDef default font-family:'Google Sans',Arial,sans-serif,color:#202124;
+
+    %% 2. COLOR CLASSES (Google Material Palette)
+    %% Blue (Initialization)
+    classDef gBlue fill:#E8F0FE,stroke:#4285F4,stroke-width:2px,color:#174EA6;
+    
+    %% Red (Integration Loop - Active processing)
+    classDef gRed fill:#FCE8E6,stroke:#EA4335,stroke-width:2px,color:#B31412;
+    
+    %% Green (Analysis - Validation)
+    classDef gGreen fill:#E6F4EA,stroke:#34A853,stroke-width:2px,color:#137333;
+    
+    %% Yellow (Output - Results)
+    classDef gYellow fill:#FEF7E0,stroke:#FBBC04,stroke-width:2px,color:#B06000;
+
+    %% 3. SUBGRAPHS
+    %% Note: Added <br/>&nbsp; to titles to prevent overlapping
+    
+    subgraph Init ["<b>Initialization</b><br/>&nbsp;"]
+        direction TB
+        S0("Initial State<br/>x₀, v₀"):::gBlue
+        Params("Parameters<br/>dt, mass, k"):::gBlue
     end
     
-    subgraph Loop["Integration Loop"]
-        F[Compute Force<br/>F = -kx]
-        A[Acceleration<br/>a = F/m]
-        Int[Integrator Step<br/>Update x, v]
-        T[Advance Time<br/>t += dt]
+    subgraph Loop ["<b>Integration Loop</b><br/>&nbsp;"]
+        direction TB
+        F("Compute Force<br/>F = -kx"):::gRed
+        A("Acceleration<br/>a = F/m"):::gRed
+        Int("Integrator Step<br/>Update x, v"):::gRed
+        T("Advance Time<br/>t += dt"):::gRed
     end
     
-    subgraph Analysis["Analysis"]
-        E[Energy<br/>KE + PE]
-        Err[Error vs Analytic]
-        Stab[Stability Check]
+    subgraph AnalysisBlock ["<b>Analysis</b><br/>&nbsp;"]
+        direction TB
+        E("Energy<br/>KE + PE"):::gGreen
+        Err("Error vs<br/>Analytic"):::gGreen
+        Stab("Stability<br/>Check"):::gGreen
     end
     
-    subgraph Output["Output"]
-        Traj[Trajectory<br/>x(t), v(t)]
-        Metrics[Metrics<br/>Drift, Max Error]
+    subgraph OutputBlock ["<b>Output</b><br/>&nbsp;"]
+        direction TB
+        Traj("Trajectory<br/>x and v"):::gYellow
+        Metrics("Metrics<br/>Drift & Max Error"):::gYellow
     end
+
+    %% 4. CONNECTIONS
+    %% Thick arrows (==>) for main flow, standard arrows (-->) for feedback loops
     
-    S0 --> Loop
-    Params --> Loop
+    S0 ==> F
+    Params ==> F
     
-    F --> A --> Int --> T
+    F ==> A ==> Int ==> T
+    
+    %% Loop back connection
     T -->|N steps| F
-    T -->|Done| Analysis
     
-    Analysis --> E
-    Analysis --> Err
-    Analysis --> Stab
+    %% Exit connection
+    T == "Done" ==> E
     
-    E --> Output
-    Err --> Output
-    Stab --> Output
+    E ==> Err
+    Err ==> Stab
     
-    style Init fill:#e1f5ff
-    style Loop fill:#ffe1e1
-    style Analysis fill:#e1ffe1
-    style Output fill:#fff4e1
+    Stab ==> Traj
+    Stab ==> Metrics
+
+    %% 5. SUBGRAPH STYLING
+    %% White background, dashed gray border
+    style Init fill:#ffffff,stroke:#e0e0e0,stroke-width:2px,stroke-dasharray: 5 5,color:#5f6368
+    style Loop fill:#ffffff,stroke:#e0e0e0,stroke-width:2px,stroke-dasharray: 5 5,color:#5f6368
+    style AnalysisBlock fill:#ffffff,stroke:#e0e0e0,stroke-width:2px,stroke-dasharray: 5 5,color:#5f6368
+    style OutputBlock fill:#ffffff,stroke:#e0e0e0,stroke-width:2px,stroke-dasharray: 5 5,color:#5f6368
 ```
 
 ---
@@ -195,43 +252,78 @@ flowchart LR
 
 ```mermaid
 graph LR
-    subgraph Overhead["Overhead-Bound<br/>N < 100"]
-        OH[Function Call<br/>Overhead]
+    %% 1. GLOBAL STYLING
+    classDef default font-family:'Google Sans',Arial,sans-serif,color:#202124;
+
+    %% 2. COLOR CLASSES
+    classDef gRed fill:#FCE8E6,stroke:#EA4335,stroke-width:2px,color:#B31412;
+    classDef gYellow fill:#FEF7E0,stroke:#FBBC04,stroke-width:2px,color:#B06000;
+    classDef gBlue fill:#E8F0FE,stroke:#4285F4,stroke-width:2px,color:#174EA6;
+
+    %% 3. THE DIAGRAM
+    %% Added <br/>&nbsp; to the labels below to force vertical spacing
+    subgraph S1 ["<b>Overhead-Bound</b> <br/> <small>N < 100</small><br/>&nbsp;"]
+        direction TB
+        OH("Function Call<br/>Overhead"):::gRed
     end
-    
-    subgraph Interpreter["Interpreter-Bound<br/>100 < N < 10K"]
-        PY[Python Loop<br/>Execution]
+
+    subgraph S2 ["<b>Interpreter-Bound</b> <br/> <small>100 < N < 10K</small><br/>&nbsp;"]
+        direction TB
+        PY("Python Loop<br/>Execution"):::gYellow
     end
-    
-    subgraph Memory["Memory-Bound<br/>N > 10K"]
-        BW[DRAM<br/>Bandwidth]
+
+    subgraph S3 ["<b>Memory-Bound</b> <br/> <small>N > 10K</small><br/>&nbsp;"]
+        direction TB
+        BW("DRAM<br/>Bandwidth"):::gBlue
     end
-    
-    OH -->|Vectorize| PY
-    PY -->|Optimize Layout| BW
-    
-    style Overhead fill:#ffe1e1
-    style Interpreter fill:#fff4e1
-    style Memory fill:#e1ffe1
+
+    %% 4. CONNECTIONS
+    OH == "Vectorize" ==> PY
+    PY == "Optimize Layout" ==> BW
+
+    %% 5. SUBGRAPH STYLING
+    style S1 fill:#ffffff,stroke:#e0e0e0,stroke-width:2px,stroke-dasharray: 5 5,color:#5f6368
+    style S2 fill:#ffffff,stroke:#e0e0e0,stroke-width:2px,stroke-dasharray: 5 5,color:#5f6368
+    style S3 fill:#ffffff,stroke:#e0e0e0,stroke-width:2px,stroke-dasharray: 5 5,color:#5f6368
 ```
 
 ### Stability vs Performance Hierarchy
 
 ```mermaid
 graph TD
-    subgraph Destabilizing["Impact on Control Stability"]
-        L[Latency<br/>100× impact]
-        J[Jitter<br/>10-100× impact]
-        A[Async Stepping<br/>2-5× impact]
-        P[Float Precision<br/><1% impact]
+    %% 1. GLOBAL STYLING
+    classDef default font-family:'Google Sans',Arial,sans-serif,color:#202124;
+
+    %% 2. COLOR CLASSES (Severity Gradient)
+    %% Critical (Latency) - Red
+    classDef gRed fill:#FCE8E6,stroke:#EA4335,stroke-width:2px,color:#B31412;
+    
+    %% High (Jitter) - Orange (Google Material Orange)
+    classDef gOrange fill:#FFF3E0,stroke:#F9AB00,stroke-width:2px,color:#E65100;
+    
+    %% Medium (Async) - Yellow
+    classDef gYellow fill:#FEF7E0,stroke:#FBBC04,stroke-width:2px,color:#B06000;
+    
+    %% Low (Float) - Green
+    classDef gGreen fill:#E6F4EA,stroke:#34A853,stroke-width:2px,color:#137333;
+
+    %% 3. THE DIAGRAM
+    subgraph Destabilizing ["<b>Impact on Control Stability</b><br/>&nbsp;"]
+        direction TB
+        
+        L("Latency<br/>100× impact"):::gRed
+        J("Jitter<br/>10-100× impact"):::gOrange
+        A("Async Stepping<br/>2-5× impact"):::gYellow
+        P("Float Precision<br/><1% impact"):::gGreen
     end
     
-    L --> J --> A --> P
-    
-    style L fill:#ff6b6b
-    style J fill:#ffa06b
-    style A fill:#ffd66b
-    style P fill:#a8e6a3
+    %% 4. CONNECTIONS
+    %% Thick arrows to show the flow of reducing impact
+    L ==> J ==> A ==> P
+
+    %% 5. SUBGRAPH STYLING
+    %% White background, clean dashed border
+    style Destabilizing fill:#ffffff,stroke:#e0e0e0,stroke-width:2px,stroke-dasharray: 5 5,color:#5f6368
 ```
 
 ### Throughput Results
@@ -364,40 +456,32 @@ Minimal_Physics_Simulator/
 ### Module Dependency Graph
 
 ```mermaid
-graph TD
-    Exp[experiments/]
-    
-    Core[mpe/core/]
-    Int[mpe/integrators/]
-    Force[mpe/forces/]
-    Batch[mpe/batch/]
-    Analysis[mpe/analysis/]
-    RL[mpe/rl/]
-    Real[mpe/realworld/]
-    
-    Exp --> Core
-    Exp --> Int
-    Exp --> Force
-    Exp --> Batch
-    Exp --> Analysis
-    Exp --> RL
-    Exp --> Real
-    
-    Int --> Core
-    Force --> Core
-    Batch --> Core
-    Batch --> Int
-    Batch --> Force
+---
+config:
+  layout: elk
+---
+flowchart TB
+    Exp("<b>experiments</b>/") --> Core("mpe/<b>core</b>/") & Int("mpe/<b>integrators</b>/") & Force("mpe/<b>forces</b>/") & Batch("mpe/<b>batch</b>/") & Analysis("mpe/<b>analysis</b>/") & RL("mpe/<b>rl</b>/") & Real("mpe/<b>realworld</b>/")
+    Int ==> Core
+    Force ==> Core
+    Batch ==> Core & Int & Force
     Analysis --> Core
-    RL --> Batch
-    RL --> Core
-    Real --> Core
-    Real --> Int
-    
-    style Exp fill:#e1f5ff
-    style Core fill:#ffe1e1
-    style Batch fill:#e1ffe1
-    style RL fill:#fff4e1
+    RL --> Batch & Core
+    Real --> Core & Int
+
+     Exp:::gBlue
+     Core:::gRed
+     Int:::gRed
+     Force:::gBlue
+     Batch:::gGreen
+     Analysis:::gGreen
+     RL:::gYellow
+     Real:::gYellow
+    classDef default font-family:'Google Sans',Arial,sans-serif,color:#202124
+    classDef gBlue fill:#E8F0FE,stroke:#4285F4,stroke-width:2px,color:#174EA6
+    classDef gRed fill:#FCE8E6,stroke:#EA4335,stroke-width:2px,color:#B31412
+    classDef gGreen fill:#E6F4EA,stroke:#34A853,stroke-width:2px,color:#137333
+    classDef gYellow fill:#FEF7E0,stroke:#FBBC04,stroke-width:2px,color:#B06000
 ```
 
 ---
