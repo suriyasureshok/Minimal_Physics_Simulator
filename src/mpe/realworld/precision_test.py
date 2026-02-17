@@ -5,21 +5,26 @@ def run_precision_test(env_class, num_envs, k_over_m, dt, horizon):
     for dtype in [np.float32, np.float64]:
         env = env_class(num_envs, k_over_m, dtype=dtype)
 
-        states = []
+        # Compute energy drift online to avoid storing the full trajectory
+        energy0 = None
+        drift_sum = 0.0
 
-        for _ in range(horizon):
+        for step_idx in range(horizon):
             state, _, _ = env.step(dt)
-            states.append(state.copy())
 
-        states = np.stack(states)
+            x = state[:, 0]
+            v = state[:, 1]
+            energy = 0.5 * v**2 + 0.5 * k_over_m * x**2
 
-        # Compute energy
+            if step_idx == 0:
+                # Reference energy at the first step, per environment
+                energy0 = energy
+            
+            # Accumulate mean absolute drift for this step across environments
+            drift_sum += np.abs(energy - energy0).mean()
 
-        x = states[:, :, 0]
-        v = states[:, :, 1]
-
-        energy = 0.5 * v**2 + 0.5 * k_over_m * x**2
-        drift = np.abs(energy - energy[0]).mean()
+        # Final drift is the mean over all steps and environments
+        drift = drift_sum / float(horizon)
 
         results[str(dtype)] = drift
 
