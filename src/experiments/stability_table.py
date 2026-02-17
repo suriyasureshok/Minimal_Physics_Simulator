@@ -144,3 +144,85 @@ print("- Max Stable dt: Largest timestep maintaining numerical stability")
 print("- ns/step: Nanoseconds per integration step (lower is faster)")
 print("- FLOPs: Floating-point operations per step")
 print("- Sim-time/sec: Simulated seconds advanced per real-world second")
+
+# ===== VISUALIZATIONS =====
+import os
+import matplotlib.pyplot as plt
+
+os.makedirs('plots', exist_ok=True)
+
+# Figure 1: Max Stable dt Comparison
+fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+
+# Plot 1: Max Stable Timestep
+ax1 = axes[0, 0]
+integrator_names = df.index.tolist()
+max_dts = df["Max Stable dt"].fillna(0).values
+colors = ['#d62728', '#ff7f0e', '#2ca02c', '#1f77b4']
+bars1 = ax1.bar(integrator_names, max_dts, color=colors, alpha=0.7, edgecolor='black')
+ax1.set_ylabel('Max Stable dt', fontsize=11, fontweight='bold')
+ax1.set_title('Maximum Stable Timestep\n(Higher is Better)', fontsize=12, fontweight='bold')
+ax1.grid(axis='y', alpha=0.3, linestyle='--')
+for i, v in enumerate(max_dts):
+    if v > 0:
+        ax1.text(i, v + max(max_dts)*0.02, f'{v:.4f}', ha='center', fontsize=9)
+
+# Plot 2: Computational Cost (ns/step)
+ax2 = axes[0, 1]
+ns_per_step = df["ns/step"].values
+bars2 = ax2.bar(integrator_names, ns_per_step, color=colors, alpha=0.7, edgecolor='black')
+ax2.set_ylabel('ns/step', fontsize=11, fontweight='bold')
+ax2.set_title('Computational Cost per Step\n(Lower is Better)', fontsize=12, fontweight='bold')
+ax2.grid(axis='y', alpha=0.3, linestyle='--')
+for i, v in enumerate(ns_per_step):
+    ax2.text(i, v + max(ns_per_step)*0.02, f'{v:.0f}', ha='center', fontsize=9)
+
+# Plot 3: Effective Throughput (Sim-time/sec)
+ax3 = axes[1, 0]
+throughput = df["Sim-time/sec"].values
+bars3 = ax3.bar(integrator_names, throughput, color=colors, alpha=0.7, edgecolor='black')
+ax3.set_ylabel('Simulated-seconds per real-second', fontsize=11, fontweight='bold')
+ax3.set_title('Effective Throughput\n(Higher is Better)', fontsize=12, fontweight='bold')
+ax3.set_yscale('log')
+ax3.grid(axis='y', alpha=0.3, linestyle='--', which='both')
+for i, v in enumerate(throughput):
+    if v > 0:
+        ax3.text(i, v * 1.3, f'{v:.0f}', ha='center', fontsize=9)
+
+# Plot 4: FLOPs Comparison
+ax4 = axes[1, 1]
+flops = df["FLOPs"].values
+bars4 = ax4.bar(integrator_names, flops, color=colors, alpha=0.7, edgecolor='black')
+ax4.set_ylabel('FLOPs per step', fontsize=11, fontweight='bold')
+ax4.set_title('Floating-Point Operations\n(Lower is Better)', fontsize=12, fontweight='bold')
+ax4.grid(axis='y', alpha=0.3, linestyle='--')
+for i, v in enumerate(flops):
+    ax4.text(i, v + max(flops)*0.02, f'{v}', ha='center', fontsize=9)
+
+plt.tight_layout()
+plt.savefig('plots/integrator_stability_comparison.png', dpi=300, bbox_inches='tight')
+print("\n✓ Saved visualization: plots/integrator_stability_comparison.png")
+
+# Figure 2: Efficiency Plot (Throughput vs Cost)
+fig2, ax = plt.subplots(figsize=(10, 6))
+valid_integrators = df[df["Sim-time/sec"] > 0]
+x = valid_integrators["ns/step"].values
+y = valid_integrators["Sim-time/sec"].values
+names = valid_integrators.index.tolist()
+
+scatter = ax.scatter(x, y, s=300, c=colors[:len(names)], alpha=0.6, edgecolor='black', linewidth=2)
+for i, name in enumerate(names):
+    ax.annotate(name, (x[i], y[i]), fontsize=11, fontweight='bold', 
+                ha='center', va='center')
+
+ax.set_xlabel('Computational Cost (ns/step)', fontsize=12, fontweight='bold')
+ax.set_ylabel('Effective Throughput (sim-s/real-s)', fontsize=12, fontweight='bold')
+ax.set_title('Integrator Efficiency: Throughput vs Cost\n(Upper-left corner is optimal)', 
+             fontsize=13, fontweight='bold')
+ax.set_yscale('log')
+ax.grid(True, alpha=0.3, linestyle='--')
+plt.tight_layout()
+plt.savefig('plots/integrator_efficiency.png', dpi=300, bbox_inches='tight')
+print("✓ Saved visualization: plots/integrator_efficiency.png")
+
+plt.show()
