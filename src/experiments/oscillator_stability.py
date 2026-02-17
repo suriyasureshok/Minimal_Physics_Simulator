@@ -1,24 +1,49 @@
-# src/experiments/oscillator_stability.py
+"""Oscillator stability visualization experiment.
 
-from src.mpe.core.state import State1D
-from src.mpe.core.simulator import Simulator
-from src.mpe.integrators.explicit_euler import ExplicitEuler
-from src.mpe.integrators.semi_implicit_euler import SemiImplicitEuler
-from src.mpe.integrators.verlet import Verlet
-from src.mpe.integrators.rk4 import RK4
-from src.mpe.forces.spring import SpringForce
-from src.mpe.analysis.energy import oscillator_energy
+This experiment creates comprehensive visualizations comparing the stability
+and accuracy of different numerical integrators on a harmonic oscillator system.
+
+The experiment:
+    - Simulates a 1D spring-mass oscillator with four integrators
+    - Generates multi-panel comparison plots showing:
+        * Position trajectories over time
+        * Phase space portraits (x vs v)
+        * Energy drift over the entire simulation
+        * Comparative stability analysis
+    - Identifies unstable integrators (Explicit Euler)
+    
+Visualizations:
+    1. Comprehensive 4-panel comparison plot
+    2. Explicit Euler instability demonstration (separate)
+    
+Output:
+    - plots/oscillator_stability_comparison.png: 4-panel comparison
+    - plots/explicit_euler_instability.png: Instability demo
+    
+Notes:
+    - Explicit Euler shows characteristic exponential energy growth
+    - Verlet maintains circular phase space orbit (symplectic)
+    - RK4 shows high accuracy but phase space spiral (not symplectic)
+    - Semi-Implicit Euler provides good stability at low cost
+"""
+
+from src.mpe.core import State1D, Simulator
+from src.mpe.integrators import ExplicitEuler, SemiImplicitEuler, Verlet, RK4
+from src.mpe.forces import SpringForce
+from src.mpe.analysis import oscillator_energy
 
 import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-m = 1.0
-k = 10.0
-omega = np.sqrt(k / m)
-dt = 0.01
-steps = 5000
+# System parameters
+m = 1.0    # Mass in kg
+k = 10.0   # Spring constant in N/m
+omega = np.sqrt(k / m)  # Natural frequency
+dt = 0.01  # Time step in seconds
+steps = 5000  # Number of simulation steps
 
+# Initial conditions: displaced spring at rest
 initial_state = State1D(1.0, 0.0)
 force = SpringForce(k)
 
@@ -99,7 +124,7 @@ ax4.axhline(y=10, color='red', linestyle='--', linewidth=2, alpha=0.5, label='10
 ax4.axhline(y=-10, color='red', linestyle='--', linewidth=2, alpha=0.5)
 
 plt.tight_layout()
-plt.savefig('plots/oscillator_stability_comparison.png', dpi=300, bbox_inches='tight')
+plt.savefig('plots/oscillator_stability_comparison.png', dpi=150, bbox_inches='tight')
 print("✓ Saved visualization: plots/oscillator_stability_comparison.png")
 
 # Figure 2: Individual Focus on Explicit Euler (Unstable Behavior)
@@ -134,7 +159,7 @@ ax2.scatter(euler_data['x'][-1], euler_data['v'][-1], s=100, c='red',
 ax2.legend(fontsize=10)
 
 plt.tight_layout()
-plt.savefig('plots/explicit_euler_instability.png', dpi=300, bbox_inches='tight')
+plt.savefig('plots/explicit_euler_instability.png', dpi=150, bbox_inches='tight')
 print("✓ Saved visualization: plots/explicit_euler_instability.png")
 
 plt.show()

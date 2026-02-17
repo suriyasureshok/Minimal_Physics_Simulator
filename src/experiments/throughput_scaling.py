@@ -1,20 +1,56 @@
+"""Backend throughput scaling benchmark.
+
+This experiment measures computational throughput of different batch integration
+backends as particle count scales from 1 to 100,000 particles.
+
+The experiment:
+    - Tests three backends: PythonLoop, NumPy, TorchCPU
+    - Measures steps/second and particle-steps/second
+    - Estimates memory bandwidth utilization
+    - Visualizes scaling behavior with heatmaps and line plots
+    
+Backends tested:
+    - PythonLoop: Naive Python loop (baseline, slowest)
+    - NumPy: Vectorized operations (10-100x speedup)
+    - TorchCPU: PyTorch CPU backend (similar to NumPy)
+    
+Metrics:
+    - Steps/sec: Integration steps completed per second
+    - Particle-Steps/sec: Total particle updates per second
+    - Bandwidth: Estimated memory bandwidth (GB/s)
+    
+Output:
+    - Console: DataFrame with detailed performance metrics
+    - plots/throughput_scaling.png: Scaling curves
+    - plots/throughput_heatmap.png: Performance heatmap
+    
+Expected results:
+    - PythonLoop: Poor scaling, ~1e3 particle-steps/sec at N=1000
+    - NumPy: Excellent scaling, ~1e8 particle-steps/sec at N=100k
+    - TorchCPU: Similar to NumPy with ML framework benefits
+"""
+
 import numpy as np 
 import torch
 import pandas as pd 
 
-from src.mpe.batch.python_loop import PythonLoopIntegrator
-from src.mpe.batch.numpy_vectorized import NumpyVectorizedIntegrator
-from src.mpe.batch.torch_cpu import TorchCPUIntegrator
-from src.mpe.batch.benchmark import benchmark_backend
+from src.mpe.batch import (
+    PythonLoopIntegrator,
+    NumpyVectorizedIntegrator,
+    TorchCPUIntegrator,
+    benchmark_backend
+)
 
+# System parameters
+m = 1.0    # Mass in kg
+k = 10.0   # Spring constant in N/m
+k_over_m = k/m  # For integrator initialization
 
-m = 1.0
-k = 10.0
-k_over_m = k/m 
+# Simulation parameters
+dt = 0.001  # Time step in seconds
+steps = 1000  # Steps to benchmark
 
-dt = 0.001 
-steps = 1000
-
+# Particle counts to test (1 to 100k)
 particle_count = [1,1000,100000]
 
 result = []
@@ -151,7 +187,7 @@ for i, (bar, val) in enumerate(zip(bars, max_N_data['Particle-Steps/sec'])):
              f'{val:.2e}', ha='center', va='bottom', fontsize=9, fontweight='bold')
 
 plt.tight_layout()
-plt.savefig('plots/throughput_scaling.png', dpi=300, bbox_inches='tight')
+plt.savefig('plots/throughput_scaling.png', dpi=150, bbox_inches='tight')
 print("\n✓ Saved visualization: plots/throughput_scaling.png")
 
 # Figure 2: Backend Comparison Heatmap
@@ -177,7 +213,7 @@ for i in range(len(pivot_data.index)):
 cbar = plt.colorbar(im, ax=ax)
 cbar.set_label('Particle-Steps/sec (log scale)', fontsize=11, fontweight='bold')
 plt.tight_layout()
-plt.savefig('plots/throughput_heatmap.png', dpi=300, bbox_inches='tight')
+plt.savefig('plots/throughput_heatmap.png', dpi=150, bbox_inches='tight')
 print("✓ Saved visualization: plots/throughput_heatmap.png")
 
 plt.show()

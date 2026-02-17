@@ -1,11 +1,49 @@
+"""Reinforcement learning rollout scaling test.
+
+This experiment measures the performance and memory characteristics of parallel
+RL environment rollouts at increasing scale.
+
+The experiment:
+    - Tests batch environment with 256 to 4096 parallel environments
+    - Measures rollout collection throughput (M transitions/sec)
+    - Analyzes memory usage of rollout storage buffers
+    - Verifies bitwise determinism for reproducibility
+    
+Configuration matrix:
+    - 256 envs × 512 horizon = 131k transitions
+    - 1024 envs × 512 horizon = 524k transitions
+    - 2048 envs × 1024 horizon = 2.1M transitions
+    - 4096 envs × 1024 horizon = 4.2M transitions
+    
+Metrics:
+    - Transitions/sec: Environment steps collected per second
+    - Memory: Rollout buffer size in megabytes
+    - Determinism: Bitwise reproducibility check
+    
+Output:
+    - Console: Detailed performance metrics for each configuration
+    - plots/rl_rollout_scaling.png: Throughput vs. scale
+    - plots/rl_memory_breakdown.png: Memory usage analysis
+    - plots/rl_performance_table.png: Tabular summary
+    
+Expected results:
+    - Linear scaling with number of environments
+    - ~1-10 M transitions/sec throughput
+    - Memory scales linearly with horizon × num_envs
+    - Perfect determinism for all configurations
+    
+Use cases:
+    - On-policy RL (PPO, A2C) environment benchmarking
+    - Distributed RL system capacity planning
+    - Memory budget estimation for large-scale training
+"""
+
 import time 
 import numpy as np 
 import matplotlib.pyplot as plt
 import os
 
-from src.mpe.rl.environment_batch import BatchOscillatorEnv
-from src.mpe.rl.rollout_storage import RolloutStorage
-from src.mpe.rl.determinism import check_determinism
+from src.mpe.rl import BatchOscillatorEnv, RolloutStorage, check_determinism
 
 # Configuration matrix for scaling study
 configs = [
@@ -153,7 +191,7 @@ for i, (x, y) in enumerate(zip(rollout_time_list, throughput_list)):
                 xytext=(5, 5), textcoords='offset points')
 
 plt.tight_layout()
-plt.savefig('plots/rl_rollout_scaling.png', dpi=300, bbox_inches='tight')
+plt.savefig('plots/rl_rollout_scaling.png', dpi=150, bbox_inches='tight')
 print("\n✓ Saved visualization: plots/rl_rollout_scaling.png")
 
 # Figure 2: Memory Breakdown for Largest Configuration
@@ -194,7 +232,7 @@ for bar, val in zip(bars, sizes):
              f'{val:.2f}', ha='center', va='bottom', fontsize=10, fontweight='bold')
 
 plt.tight_layout()
-plt.savefig('plots/rl_memory_breakdown.png', dpi=300, bbox_inches='tight')
+plt.savefig('plots/rl_memory_breakdown.png', dpi=150, bbox_inches='tight')
 print("✓ Saved visualization: plots/rl_memory_breakdown.png")
 
 # Figure 3: Performance Summary Table Visualization
@@ -238,7 +276,7 @@ for i in range(1, len(table_data) + 1):
 
 ax.set_title('RL Rollout Performance Summary', fontsize=14, fontweight='bold', pad=20)
 
-plt.savefig('plots/rl_performance_table.png', dpi=300, bbox_inches='tight')
+plt.savefig('plots/rl_performance_table.png', dpi=150, bbox_inches='tight')
 print("✓ Saved visualization: plots/rl_performance_table.png")
 
 plt.show()

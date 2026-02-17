@@ -1,17 +1,70 @@
+"""Real-world stability analysis experiment.
+
+This experiment tests simulator stability under real-world conditions including
+timing jitter, latency, asynchronous stepping, and reduced numerical precision.
+
+The experiment:
+    - Tests four real-world imperfections:
+        1. Precision: float32 vs float64 energy drift
+        2. Jitter: Gaussian noise in timestep dt
+        3. Latency: Sensor-actuator delay effects
+        4. Async: Per-environment timestep variation
+    - Runs long simulations (1M steps) to reveal accumulated effects
+    - Visualizes stability degradation under each condition
+    
+Test scenarios:
+    Precision:
+        - Compare float32 vs float64 energy conservation
+        - Measure relative energy drift over 1M steps
+        
+    Jitter:
+        - Test dt noise levels: 0.0, 1e-5, 1e-4, 1e-3
+        - Track position/velocity trajectory divergence
+        
+    Latency:
+        - Simulate sensor delays: 0, 1, 5, 10 steps
+        - Measure effect on oscillator amplitude
+        
+    Async:
+        - Run 8 environments with independent dt variation
+        - Demonstrate distributed system timing effects
+
+Output:
+    - Console: Numeric stability metrics for each condition
+    - plots/jitter_analysis.png: Jitter effect visualization
+    - plots/latency_analysis.png: Latency impact curves
+    - plots/stability_hierarchy.png: Combined stability summary
+    
+Expected results:
+    - float32 shows measurable energy drift vs float64
+    - Jitter causes trajectory noise but maintains stability
+    - Latency introduces phase lag and amplitude changes
+    - Async stepping creates environment desynchronization
+    
+Use cases:
+    - Embedded system simulation with timing constraints
+    - Distributed RL with network latency
+    - Real-time control with sensor delays
+    - Hardware-in-the-loop testing
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-from src.mpe.rl.environment_batch import BatchOscillatorEnv
-from src.mpe.realworld.precision_test import run_precision_test
-from src.mpe.realworld.jitter import step_with_jitter
-from src.mpe.realworld.async_step import AsyncBatchEnv
+from src.mpe.rl import BatchOscillatorEnv
+from src.mpe.realworld import (
+    run_precision_test,
+    step_with_jitter,
+    AsyncBatchEnv,
+    step_with_latency
+)
 
-
-num_envs = 1
-k_over_m = 10.0
-dt = 0.001
-horizon = 1000000  # Reduced for visualization clarity
+# Test configuration
+num_envs = 1        # Single environment for precision tests
+k_over_m = 10.0     # Spring constant / mass ratio
+dt = 0.001          # Base timestep in seconds
+horizon = 1_000_000 # Long simulation to reveal drift
 
 os.makedirs('plots', exist_ok=True)
 
@@ -54,8 +107,6 @@ for jitter_std in jitter_levels:
 
 print("\n===== Latency Effect =====")
 # Test baseline vs latency
-from src.mpe.realworld.latency import step_with_latency
-
 latency_steps = [0, 1, 5, 10]
 latency_trajectories = {}
 
@@ -150,7 +201,7 @@ ax4.set_title('Error Growth vs Jitter Magnitude', fontsize=12, fontweight='bold'
 ax4.grid(True, alpha=0.3, linestyle='--', which='both')
 
 plt.tight_layout()
-plt.savefig('plots/realworld_jitter_analysis_(horizon_1000000).png', dpi=300, bbox_inches='tight')
+plt.savefig('plots/realworld_jitter_analysis_(horizon_1000000).png', dpi=150, bbox_inches='tight')
 print("\n✓ Saved visualization: plots/realworld_jitter_analysis_(horizon_1000000).png")
 
 # Figure 2: Latency Effect
@@ -186,7 +237,7 @@ ax2.set_title('Error Growth vs Latency', fontsize=12, fontweight='bold')
 ax2.grid(True, alpha=0.3, linestyle='--', which='both')
 
 plt.tight_layout()
-plt.savefig('plots/realworld_latency_analysis_(horizon_1000000).png', dpi=300, bbox_inches='tight')
+plt.savefig('plots/realworld_latency_analysis_(horizon_1000000).png', dpi=150, bbox_inches='tight')
 print("✓ Saved visualization: plots/realworld_latency_analysis_(horizon_1000000).png")
 
 # Figure 3: Stability Hierarchy Summary
@@ -213,7 +264,7 @@ for i, (bar, val) in enumerate(zip(bars, impact_factors)):
             ha='left', va='center', fontsize=11, fontweight='bold')
 
 plt.tight_layout()
-plt.savefig('plots/realworld_stability_hierarchy_(horizon_1000000).png', dpi=300, bbox_inches='tight')
+plt.savefig('plots/realworld_stability_hierarchy_(horizon_1000000).png', dpi=150, bbox_inches='tight')
 print("✓ Saved visualization: plots/realworld_stability_hierarchy_(horizon_1000000).png")
 
 plt.show()
