@@ -456,32 +456,64 @@ Minimal_Physics_Simulator/
 ### Module Dependency Graph
 
 ```mermaid
----
-config:
-  layout: elk
----
-flowchart TB
-    Exp("<b>experiments</b>/") --> Core("mpe/<b>core</b>/") & Int("mpe/<b>integrators</b>/") & Force("mpe/<b>forces</b>/") & Batch("mpe/<b>batch</b>/") & Analysis("mpe/<b>analysis</b>/") & RL("mpe/<b>rl</b>/") & Real("mpe/<b>realworld</b>/")
-    Int ==> Core
-    Force ==> Core
-    Batch ==> Core & Int & Force
-    Analysis --> Core
-    RL --> Batch & Core
-    Real --> Core & Int
-
-     Exp:::gBlue
-     Core:::gRed
-     Int:::gRed
-     Force:::gBlue
-     Batch:::gGreen
-     Analysis:::gGreen
-     RL:::gYellow
-     Real:::gYellow
-    classDef default font-family:'Google Sans',Arial,sans-serif,color:#202124
+%%{ init: { 'flowchart': { 'curve': 'step' } } }%%
+flowchart TD
+    %% 1. GLOBAL STYLING
+    classDef default font-family:arial,color:#202124
+    
+    %% 2. COLOR CLASSES
     classDef gBlue fill:#E8F0FE,stroke:#4285F4,stroke-width:2px,color:#174EA6
     classDef gRed fill:#FCE8E6,stroke:#EA4335,stroke-width:2px,color:#B31412
     classDef gGreen fill:#E6F4EA,stroke:#34A853,stroke-width:2px,color:#137333
     classDef gYellow fill:#FEF7E0,stroke:#FBBC04,stroke-width:2px,color:#B06000
+
+    %% 3. NODES
+    Exp("<b>experiments</b>/"):::gBlue
+
+    %% 4. GROUPS (Using standard syntax to avoid errors)
+    subgraph Apps
+        direction TB
+        RL("mpe/<b>rl</b>/"):::gYellow
+        Real("mpe/<b>realworld</b>/"):::gYellow
+    end
+
+    subgraph Data
+        direction TB
+        Batch("mpe/<b>batch</b>/"):::gGreen
+        Analysis("mpe/<b>analysis</b>/"):::gGreen
+    end
+
+    subgraph Physics
+        direction TB
+        Force("mpe/<b>forces</b>/"):::gBlue
+        Int("mpe/<b>integrators</b>/"):::gRed
+    end
+
+    Core("mpe/<b>core</b>/"):::gRed
+
+    %% 5. CONNECTIONS
+    Exp --> Apps
+    Exp --> Data
+    Exp --> Physics
+    Exp --> Core
+
+    RL --> Batch
+    RL --> Core
+    Real --> Int
+    Real --> Core
+
+    Batch --> Force
+    Batch --> Int
+    Batch --> Core
+    Analysis --> Core
+
+    Force --> Core
+    Int --> Core
+
+    %% 6. SUBGRAPH STYLING
+    style Apps fill:none,stroke:none
+    style Data fill:none,stroke:none
+    style Physics fill:none,stroke:none
 ```
 
 ---
